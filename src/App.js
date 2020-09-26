@@ -7,17 +7,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <User />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
     </div>
   );
@@ -32,6 +21,7 @@ class User extends React.Component {
       username: '',
       password: '',
       error: '',
+      users: []
     };
   }
 
@@ -69,27 +59,129 @@ class User extends React.Component {
     });
   }
 
+  createUser = async () => {
 
+    //event.preventDefault();
+
+    let username = this.state.username;
+    let password = this.state.password;
+
+    await fetch("http://localhost:4000/users/create", {
+      method: "POST",
+      mode: 'cors',
+      body: JSON.stringify({
+        "username": username,
+        "password": password
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    alert("Created User");
+
+  }
+
+  updateUser = async () => {
+
+    //event.preventDefault();
+
+    let username = this.state.username;
+
+    let password = this.state.password
+
+    await fetch("http://localhost:4000/users/update", {
+      method: "PUT",
+      mode: 'cors',
+      body: JSON.stringify({
+        "username": username,
+        "password": password
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    alert("Updated User Password");
+
+  }
+
+  deleteUser = async () => {
+
+    //event.preventDefault();
+
+    let username = this.state.username;
+
+    await fetch("http://localhost:4000/users/delete/" + username, {
+      method: "DELETE",
+      mode: 'cors',
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    alert("Deleted User");
+
+  }
+
+  getUsers = async () => {
+    //event.preventDefault();
+    let userFetch = await fetch("http://localhost:4000/users/getAll");
+
+    let userData = await userFetch.json();
+
+    this.setState({ 
+      users: userData.users 
+    });
+
+  }
 
   render() {
     return (
       <div className="Login">
-        <form onSubmit={this.handleSubmit}>
-          {
-            this.state.error &&
-            <h3 data-test="error" onClick={this.dismissError}>
-              <button onClick={this.dismissError}>✖</button>
-              {this.state.error}
-            </h3>
-          }
+        <h2>User CRUD</h2>
+        <br></br>
+        <h3>Add User</h3>
+        <form>
           <label>User Name</label>
-          <input type="text" data-test="username" value={this.state.username} onChange={this.handleUserChange} />
+          <input type="text" value={this.state.username} onChange={this.handleUserChange} />
 
           <label>Password</label>
-          <input type="password" data-test="password" value={this.state.password} onChange={this.handlePassChange} />
+          <input type="password" value={this.state.password} onChange={this.handlePassChange} />
 
-          <input type="submit" value="Log In" data-test="submit" />
+          <input type="button" value="Create User" onClick={this.createUser} />
         </form>
+
+        <h3>Update User</h3>
+        <form>
+          <label>User Name</label>
+          <input type="text" value={this.state.username} onChange={this.handleUserChange} />
+
+          <label>Password</label>
+          <input type="password" value={this.state.password} onChange={this.handlePassChange} />
+
+          <input type="button" value="Update User" onClick={this.updateUser} />
+        </form>
+
+        <h3>Delete User</h3>
+        <form >
+          <label>User Name</label>
+          <input type="text" value={this.state.username} onChange={this.handleUserChange} />
+
+          <input type="button" value="Delete User" onClick={this.deleteUser} />
+        </form>
+
+        <h3>Get Users</h3>
+        <form>
+
+          <input type="button" value="Get Users" onClick={this.getUsers} />
+        </form>
+        <div className="UserData">
+          <ul>
+            {this.state.users.map((user) => (
+              <li key={user.username}>{user.username}</li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }
